@@ -1,0 +1,116 @@
+import random
+
+class Entrenador:
+    def __init__(self, nombre: str):
+        self.nombre = nombre
+
+
+class Pokemon:
+    def __init__(self, nombre: str):
+        self.nombre = nombre
+        self.max_ataque = random.randint(20, 100)
+        self.vida_max = random.randint(150, 400)
+        self.vida_actual = self.vida_max
+
+    def recuperar(self):
+        """Restaura la vida actual al maximo"""
+        self.vida_actual = self.vida_max
+
+
+def crearEntrenadorPokemon(num: int):
+    """
+    Crea un entrenador y su pokemon.
+    :param num: 1 para jugador, 2 para rival
+    """
+    if num == 1:
+        print("\nCreando tu entrenador y pokemon...")
+    else:
+        print("\nCreando al rival...")
+
+    nombre_entrenador = input("Nombre del entrenador: ")
+    nombre_pokemon = input("Nombre de su pokemon: ")
+
+    entrenador = Entrenador(nombre_entrenador)
+    pokemon = Pokemon(nombre_pokemon)
+
+    print(f"\nEntrenador {entrenador.nombre} ha elegido a {pokemon.nombre}")
+    print(f"Estadisticas de {pokemon.nombre}: Ataque maximo {pokemon.max_ataque}, Vida maxima {pokemon.vida_max}\n")
+
+    return entrenador, pokemon
+
+
+def valorDeAtaque(pokemon: Pokemon):
+    """
+    Calcula el ataque (parcial o total) de un pokemon.
+    """
+    return random.randint(0, pokemon.max_ataque)
+
+
+def defender(pokemon: Pokemon, ataque: int):
+    """
+    Aplica la defensa de un pokemon contra un ataque.
+    Si el dado sale 6, el ataque se anula.
+    """
+    dado = random.randint(1, 6)
+    if dado == 6:
+        ataque = 0
+        print(f"¡{pokemon.nombre} se defendio perfectamente! Daño anulado.")
+
+    pokemon.vida_actual -= ataque
+    return pokemon.vida_actual
+
+def main():
+    victorias = 0
+    derrotas = 0
+
+    jugador, poke_jugador = crearEntrenadorPokemon(1)
+
+    while True:
+        print("\n--- MENU ---")
+        print("(P) Pelear")
+        print("(F) Finalizar juego")
+        opcion = input("Elija una opción: ").upper()
+
+        if opcion == "F":
+            print("\nResumen de Batalla: ")
+            print(f"Tu pokemon: {poke_jugador.nombre}")
+            print(f"Ataque maximo: {poke_jugador.max_ataque}")
+            print(f"Vida maxima: {poke_jugador.vida_max}")
+            print(f"Victorias: {victorias}, Derrotas: {derrotas}")
+            break
+
+        elif opcion == "P":
+            poke_jugador.recuperar()
+
+            rival, poke_rival = crearEntrenadorPokemon(2)
+            poke_rival.recuperar()
+
+            print(f"\n¡Empieza la batalla! {poke_jugador.nombre} VS {poke_rival.nombre}\n")
+
+            turno_jugador = True
+            while poke_jugador.vida_actual > 0 and poke_rival.vida_actual > 0:
+                if turno_jugador:
+                    ataque = valorDeAtaque(poke_jugador)
+                    print(f"{poke_jugador.nombre} ataca con {ataque} puntos de daño.")
+                    defender(poke_rival, ataque)
+                    print(f"Vida de {poke_rival.nombre}: {max(poke_rival.vida_actual,0)}\n")
+                else:
+                    ataque = valorDeAtaque(poke_rival)
+                    print(f"{poke_rival.nombre} ataca con {ataque} puntos de daño.")
+                    defender(poke_jugador, ataque)
+                    print(f"Vida de {poke_jugador.nombre}: {max(poke_jugador.vida_actual,0)}\n")
+
+                turno_jugador = not turno_jugador  
+
+            if poke_jugador.vida_actual > 0:
+                print(f" {jugador.nombre} gana con {poke_jugador.nombre} ")
+                victorias += 1
+            else:
+                print(f" {rival.nombre} gana con {poke_rival.nombre} ")
+                derrotas += 1
+
+        else:
+            print("Opcion no valida. Intente de nuevo.")
+
+if __name__ == "__main__":
+   main()
